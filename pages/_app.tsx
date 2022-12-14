@@ -1,8 +1,28 @@
-import Head from 'next/head'
-import '../styles/globals.css'
-import { AppProps } from 'next/app'
+import Head from "next/head";
+import "../styles/globals.css";
+import { AppProps } from "next/app";
+import { useMemo } from "react";
+import { useRouter } from "next/router";
+
+/**
+ *
+ * @param key the query key
+ * @returns the query value to the query key
+ */
+export const useNextQueryParam = (key: string): string | undefined => {
+  const { asPath } = useRouter();
+
+  const value = useMemo(() => {
+    const match = asPath.match(new RegExp(`[&?]${key}=(.*?)(&|$)`));
+    if (!match) return undefined;
+    return decodeURIComponent(match[1]);
+  }, [asPath, key]);
+
+  return value;
+};
 
 export default function MyApp({ Component, pageProps }: AppProps) {
+  const theme = useNextQueryParam("theme");
   return (
     <>
       <Head>
@@ -16,7 +36,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         <meta name="keywords" content="Keywords" />
         <title>Next.js PWA Example</title>
 
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href={`/manifest.json?theme=${theme}`} />
         <link
           href="/icons/favicon-16x16.png"
           rel="icon"
@@ -34,5 +54,5 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <Component {...pageProps} />
     </>
-  )
+  );
 }
